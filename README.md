@@ -229,6 +229,95 @@ These results are consistent with those obtained from the original hierarchical 
 + The alternative model confirms our conclusion: difficulty has a strong effect, stimulus type does not.
 ```
 
+
+## 8. One More Step: Comparing Alternative SDT Model
+
+To further validate the robustness of our findings, we implemented and ran a structurally different hierarchical SDT model defined in `new2nd_apply_hierarchical_sdt_model(data)`. This alternative formulation shifts the participant-level variation directly to the trial level, allowing random effects to influence every trial via indexing. In contrast to the original model, which uses a (P × C) matrix for $d'$ and $c$, this one imposes additive trial-level effects with participant-specific slopes.
+
+### Comparison of Two Hierarchical SDT Models
+
+In our analysis, we explored two hierarchical signal detection theory (SDT) models that differ in their structural assumptions and levels of granularity. Below is a comprehensive comparison of their designs and implications.
+
+#### I. Hierarchical Structure: Condition-Level vs. Trial-Level
+
+| Feature                     | `new_apply_hierarchical_sdt_model`           | `new2nd_apply_hierarchical_sdt_model`         |
+|----------------------------|-----------------------------------------------|------------------------------------------------|
+| **Index granularity**      | Condition level (Participant × Condition)     | Trial level (each trial indexed independently) |
+| **Effect modeling**        | Each condition receives a fixed effect; participant variability is modeled across condition level | Trial uses stimulus and difficulty directly; participant variation enters at trial level |
+| **Structural complexity**  | Coarse-grained, fewer conditions              | Fine-grained, each trial has its own $d'$ and $c$  |
+| **Inference units**        | $d'_{\text{pc}}, $c_{\text{pc}}$              | $d'_i, c_i$, where $i$ is a trial      |
+
+
+#### II. Mathematical Formulation Differences
+
+Renderring issues identified here. Please download the README.md file for correct LaTex rendering.
+
+##### Original Model (Condition-level structure)
+
+$$d'_{p,c} \sim \mathcal{N}(\mu_{d'}[c], \sigma_d), \quad \mu_{d'}[c] = \alpha + \beta_{\text{stim}} \cdot s_c + \beta_{\text{diff}} \cdot d_c + \beta_{\text{int}} \cdot s_c d_c$$
+
+$$c_{p,c} \sim \mathcal{N}(\mu_c[c], \sigma_c), \quad \mu_c[c] = \alpha_c + \gamma_{\text{stim}} \cdot s_c + \gamma_{\text{diff}} \cdot d_c + \gamma_{\text{int}} \cdot s_c d_c$$
+
+##### Alternative Model (Trial-level structure)
+
+$$d'_i = \mu_{\alpha} + \beta_{\text{stim}} \cdot \text{Stim}_i + \beta_{\text{diff}} \cdot \text{Diff}_i + \beta_{\text{int}} \cdot (\text{Stim}_i \cdot \text{Diff}_i) + \alpha_{p(i)} \cdot \sigma_d$$
+
+$$c_i = \mu_c + \gamma_{\text{stim}} \cdot \text{Stim}_i + \gamma_{\text{diff}} \cdot \text{Diff}_i + \gamma_{\text{int}} \cdot (\text{Stim}_i \cdot \text{Diff}_i) + c_{p(i)} \cdot \sigma_c$$
+
+#### III. Implications for Inference
+
+- **Condition-level model** is better suited when:
+  - You want a clean hierarchical model by participant and condition
+  - You value interpretability and visualization across conditions
+
+- **Trial-level model** is better suited when:
+  - You need fine-grained inference at the trial level
+  - The data is better modeled as generalized linear mixed effects
+  - You aim to incorporate trial-specific covariates
+
+### Convergence Diagnostics (Alternative Model)
+
+| Parameter         | Mean   | SD    | 3% HDI | 97% HDI | ESS (bulk) | $\hat{R}$ |
+|------------------|--------|-------|--------|---------|-------------|------------|
+| $\mu_{\alpha}$      | 4.573  | 0.405 | 3.779  | 5.214   | 2133        | 1.00       |
+| $\beta_{\text{stim}}$     | -0.009  | 0.073 | -0.148 | 0.128   | 4906        | 1.00       |
+| $\beta_{\text{diff}}$     | -3.198 | 0.061 | -3.314 | -3.084  | 4809        | 1.00       |
+| $\beta_{\text{int}}$      | -0.026 | 0.086 | -0.181 | 0.143   | 4442        | 1.00       |
+| $\mu_c$         | 2.453  | 0.153 | 2.174  | 2.743   | 2480        | 1.00       |
+| $\gamma_{\text{stim}}$    | 0.028  | 0.052 | -0.067 | 0.128   | 4686        | 1.00       |
+| $\gamma_{\text{diff}}$    | -1.585 | 0.043 | -1.667 | -1.506  | 4830        | 1.00       |
+| $\gamma_{\text{int}}$     | -0.051 | 0.061 | -0.167 | 0.062   | 4454        | 1.00       |
+
+### Posterior Distributions
+
+The posterior distributions below confirm the relative strength and uncertainty of the modeled effects under the trial-level SDT specification.
+
+![Posterior Distributions](figures/sdt/new2nd_posterior_distributions.png)
+
+**Interpretation**:
+
+- **$\beta_{\text{diff}}$** and **$\gamma_{\text{diff}}$** show tight, clearly negative distributions, indicating robust and reliable effects of **trial difficulty** on both sensitivity ($d'$) and decision criterion ($c$).
+- **$\beta_{\text{stim}}$** and **$\gamma_{\text{stim}}$** are centered close to zero and have wider distributions, suggesting **weak or negligible effects of stimulus type**.
+- **Interaction terms** ($\beta_{\text{int}}$, $\gamma_{\text{int}}$) also span zero with low magnitude, indicating **no compelling evidence for a stimulus × difficulty interaction**.
+- The posterior mean of $\mu_{\alpha}$ around 4.6 and $\mu_c$ around 2.5 supports the overall response tendencies across participants.
+
+These findings are consistent with our previous (condition-level) model and reinforce the conclusion that **trial difficulty has a much stronger influence on perceptual decision behavior** than stimulus complexity.
+
+### Effect Size Comparison
+
+| Parameter         | Stimulus Effect (mean ± sd) | Difficulty Effect (mean ± sd) | Significant |
+|------------------|-----------------------------|-------------------------------|-------------|
+| $d'$ (Sensitivity) | $-0.009 \pm 0.073$              | $-3.198 \pm 0.061$                | ✅          |
+| $c$ (Criterion)   |  $0.028 \pm 0.052$              | $-1.585 \pm 0.043$                | ✅          |
+
+**Interpretation**:  
+Our posterior analysis confirms that the Trial Difficulty manipulation continues to exert a strong, significant influence on both $d'$ and $c$, while the Stimulus Type effects are near-zero and non-significant in this model.  
+These results are consistent with those obtained from the original hierarchical SDT model, reinforcing our primary conclusions and model robustness.
+
+```diff
++ The alternative model confirms our conclusion: difficulty has a strong effect, stimulus type does not.
+```
+
 ---
 
 ## Project Directory Structure
