@@ -8,7 +8,7 @@ import pandas as pd
 from pathlib import Path
 import os
 from sdt_ddm import read_data, draw_delta_plots
-from sdt import new_apply_hierarchical_sdt_model, new2nd_apply_hierarchical_sdt_model
+from sdt_update import new_apply_hierarchical_sdt_model
 
 if __name__ == "__main__":
 
@@ -55,12 +55,16 @@ if __name__ == "__main__":
         'alpha_d_prime', 'beta_stim', 'beta_diff', 'beta_int',
         'alpha_criterion', 'gamma_stim', 'gamma_diff', 'gamma_int'
     ])
+    plt.tight_layout()
+    plt.title("Trace Plots for SDT Model Parameters")
     plt.savefig(SDT_DIR / "trace_plots.png")
 
     az.plot_pair(trace, var_names=[
         'alpha_d_prime', 'beta_stim', 'beta_diff', 'beta_int',
         'alpha_criterion', 'gamma_stim', 'gamma_diff', 'gamma_int'
     ], kind='kde')
+    plt.suptitle("Pair Plots for SDT Model Parameters")
+    plt.tight_layout()
     plt.savefig(SDT_DIR / "pair_plots.png")
 
 
@@ -70,6 +74,8 @@ if __name__ == "__main__":
         'alpha_d_prime', 'beta_stim', 'beta_diff', 'beta_int',
         'alpha_criterion', 'gamma_stim', 'gamma_diff', 'gamma_int'
     ])
+    plt.suptitle("Posterior Distributions for SDT Model Parameters")
+    plt.tight_layout()
     plt.savefig(SDT_DIR / "posterior_distributions.png")
 
 
