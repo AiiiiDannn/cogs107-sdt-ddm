@@ -250,7 +250,7 @@ In our analysis, we explored two hierarchical signal detection theory (SDT) mode
 
 #### II. Mathematical Formulation Differences
 
-Renderring issues identified here. Please download the README.md file for correct LaTex rendering.
+<span>Renderring issues identified here. Please download the README.md file for correct LaTex rendering.</span>
 
 ##### Original Model (Condition-level structure)
 
